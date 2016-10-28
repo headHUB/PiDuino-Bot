@@ -1,0 +1,99 @@
+TODO piduino robot:
+
+__________________________________________________________________
+	COMMAND
+  | master script (video, controls, sensor feedback)
+% | video stream + sensor data receive
+% | IP command line input
+  | 
+  | 
+  | 
+  | 
+  | 
+  	PI
+  | pi to arduino control
+% | sensor data to command
+  | master script (controls, sensor feedback)
+% | control handling in loop
+  | 
+  | 
+  	ARDUINO
+% | sensor data to pi
+  | controls (receive and act)
+% | connect serial
+  | 
+
+
+current:
+arduino command handling crashes
+
+
+__________________________________________________________________
+NOTES:
+KIJK NAAR https://github.com/pnetherwood
+vooral de arm control pi
+
+webrtc gaat niet werken op pi1 b+...
+
+
+command master:
+(oud) display_video_stream.py
+(oud) command_pi_robot.py
+display_video_stream2.py
+tryout_command_gui.py
+
+
+pi master:
+(oud) arduino_sensor_receive.py
+(oud) arduino_command_center.py (was tijdelijk udp_server.py)
+(oud) arduino_command_center2.py
+arduino_command_center3.py 
+
+
+
+__________________________________________________________________
+control port:
+TCP_PORT = 5005
+
+sensor feedback port:
+TCP_PORT = 5006
+
+
+vnc pi:
+vncviewer 10.42.0.57:5901
+sudo service lightdm stop
+
+start vnc:
+vncserver ( :1 -geometry 1920x1080 -depth 24  voor high-end)
+
+uv4l restart pi:
+sudo pkill uv4l
+sudo service uv4l_raspicam restart
+
+arduino serial fix:
+cat /dev/ttyACM<tab>
+
+
+__________________________________________________________________
+settings voor smooth video stream in /etc/uv4l/uv4l-raspicam.conf:
+## uv4l core options
+frame-buffers = 2 (standaard 4)
+
+### raspicam driver options
+width/height, framerate (!)
+standaard: 640, 480, 30
+snel over wifi: 320, 240, 5 (10 al te veel)
+of 640, 480, 6, en quality 10
+### Advanced options:
+server-option = --frame-timeout=5000 (0 is kut)
+quality: 50? standaard 85
+
+frame-buffers=1 (4)
+encoding=mjpeg (h264)
+width=640
+height=480
+framerate=7 (30)
+quality=20 (85)
+
+
+__________________________________________________________________
