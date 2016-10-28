@@ -1,8 +1,10 @@
-# run tegelijk met:
-# command_pi_robot.py lokaal
-# arduino_command_center3.py op pi
-# en connect_serial2.ino op de arduino
-
+# display the raspicam uv4l video stream, and do some facial recognition
+#
+# run this with:
+# tryout_command_gui.py locally
+# arduino_command_center3.py on the pi
+# and connect_serial3.ino an the arduino
+# watch the stream in your brwoser at 'http://192.168.0.105:8080/stream/video.mjpeg'
 # thread idee van http://stackoverflow.com/questions/11436502/closing-all-threads-with-a-keyboard-interrupt
 
 import time
@@ -12,15 +14,12 @@ import socket
 import numpy as np
 import sys
 import threading
-# import thread import *
-# from threading import Thread
+
 
 # utp setup
 TCP_IP = '192.168.0.105'
 TCP_PORT = 5006
 BUFFER_SIZE = 1024
-# MESSAGE = "Hello, World!"
-
 
 
 distance = ''
@@ -30,19 +29,6 @@ i = np.zeros((240,320,3), dtype=np.uint8)
 gray = cv2.cvtColor(i, cv2.COLOR_BGR2GRAY)
 faceCascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 faces = ()
-# faces = faceCascade.detectMultiScale(
-#     gray,
-#     scaleFactor=1.1,
-#     minNeighbors=5,
-#     minSize=(30, 30),
-#     flags = cv2.cv.CV_HAAR_SCALE_IMAGE
-# )
-
-# print type(faces)
-
-# get stream from 'http://10.42.0.57:8080/stream/video.mjpeg'
-
-
 
 
 
@@ -50,8 +36,6 @@ faces = ()
 def videothread(stream, bytes, run_event):
     global distance
     global i
-    # global bytes
-    # global stream
     cv2.namedWindow('PiDuino video stream', cv2.WINDOW_NORMAL)
     while run_event.is_set():
         try:
@@ -88,7 +72,6 @@ def feedbackthread(s, run_event):
     global distance
     global looptime
     global lasttime
-    # global s
     while run_event.is_set():
         try:
             looptime = time.time()
@@ -104,7 +87,6 @@ def feedbackthread(s, run_event):
                 time.sleep(0.1)
         except KeyboardInterrupt:
             print "feedback thread received keyboard interrupt, stopping..."
-            # s.close()
             exit(0)
 
 
@@ -125,6 +107,9 @@ def facedetectthread(run_event):
                 minSize=(30, 30),
                 flags = cv2.cv.CV_HAAR_SCALE_IMAGE
             )
+
+            #  some tryout stuff to see if i could improve face detection by
+            # using multiple detectors. currently still too buggy.
 
             # frontFaces = frontFaceCascade.detectMultiScale(
             #     gray,
@@ -211,11 +196,6 @@ if __name__ == '__main__':
     try:
         while 1:
             time.sleep(.1)
-    # except Exception as errtxt:
-    #     print errtxt
-    #     s.close()
-    #     stream.close()
-    #     time.sleep(0.1) # wait a little for threads to finish
     except KeyboardInterrupt:
         print "attempting to close threads."
         run_event.clear()
@@ -231,37 +211,3 @@ if __name__ == '__main__':
 
 
 
-
-##
-## Main starting point of server
-## 
-# running = True
-# try:
-#     # while running:
-#     print "DERPH ..."
-
-
-#     streamurl = 'http://' + TCP_IP + ':8080/stream/video.mjpeg'
-#     stream = urllib.urlopen(streamurl)
-#     bytes=''
-
-#     # Start listening to new socket on seperate thread
-#     start_new_thread(videothread, (stream, bytes, ))
-
-#     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-#     s.connect((TCP_IP, TCP_PORT))
-
-#     # while running:
-#     start_new_thread(feedbackthread ,(s,))
-#     time.sleep(5)
-  
-# finally:
-#     print "Exiting"
-#     try:
-#         arm.stop()  # Stop the arm if we get here in error
-#     except:
-#         pass
-#     s.close()
-#     stream.close()
-#     time.sleep(0.1) # wait a little for threads to finish
-#     # motor.cleanup()

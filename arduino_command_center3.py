@@ -106,8 +106,6 @@ def serverthread(conn):
             print "dat was een q!"
             # print len(distance)
             # print distance
-#        elif distance == '10\r\n':
-#            print "arduino: stop command received"
         elif distance == '267\n':
             print "dat was een w!"
         elif distance == '100\n':
@@ -148,7 +146,6 @@ try:
         ser.close()
         ser.open()
         time.sleep(.5)
-#        ser.write('serial start')
 
         # Start listening to new socket on seperate thread
         start_new_thread(clientthread ,(conn,))
@@ -162,5 +159,3 @@ finally:
         pass
     s.close()
     time.sleep(0.1) # wait a little for threads to finish
-    # motor.cleanup()
-
