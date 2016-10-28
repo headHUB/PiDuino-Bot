@@ -1,5 +1,7 @@
 Code for operating a small home-built robot over wifi, using Python 2.
 
+please take note that, for the face detection to work, this project should have a /haarcascades folder in it, [this one](https://github.com/opencv/opencv/tree/master/data/haarcascades) to be exact.
+
 Includes uv4l camera stream display, remote control using tcp packets, sonar feedback, and a little bit of face recognition (wroking on that).
 
 run connect_serial3.ino on the arduino, and connect it via usb serial. this handles collecting sonar data, communication with the raspberry, and the running the engines.
