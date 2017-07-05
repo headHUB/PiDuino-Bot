@@ -25,10 +25,13 @@ BUFFER_SIZE = 1024
 distance = ''
 looptime = time.time()
 lasttime = time.time()
-i = np.zeros((240,320,3), dtype=np.uint8)
+i = np.zeros((480,640,3), dtype=np.uint8)
 gray = cv2.cvtColor(i, cv2.COLOR_BGR2GRAY)
-faceCascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
+faceCascade = cv2.CascadeClassifier('/home/nibo/Builds/opencv/data/haarcascades/haarcascade_frontalface_default.xml')
 faces = ()
+eye_list = []
+# eyes = ()
+# eye_list = []
 
 
 
@@ -37,6 +40,7 @@ def videothread(stream, bytes, run_event):
     global distance
     global i
     cv2.namedWindow('PiDuino video stream', cv2.WINDOW_NORMAL)
+    cv2.resizeWindow('PiDuino video stream', 640,480)
     while run_event.is_set():
         try:
             bytes+=stream.read(1024)
@@ -48,8 +52,28 @@ def videothread(stream, bytes, run_event):
                 i = cv2.imdecode(np.fromstring(jpg, dtype=np.uint8),cv2.IMREAD_COLOR)
                 font = cv2.FONT_HERSHEY_SIMPLEX
 
+                # display the found faces
                 for (x, y, w, h) in faces:
                     cv2.rectangle(i, (x, y), (x+w, y+h), (0, 255, 0), 2)
+
+                # for each face, 
+                # face_count = 0
+                # for (ex,ey,ew,eh) in eyes:
+                #     print('face count: ' + str(face_count))
+                #     print('face patch count: ' + str(len(face_patches)))
+                #     roi_color = face_patches[face_count]
+                #     print(type(roi_color))
+                #     cv2.rectangle(roi_color,(ex,ey),(ex+ew,ey+eh),(0,255,0),2)
+                    # face_count += 1
+
+                if len(eye_list) > 0:
+                    for eye_dict in eye_list:
+                        # roi_color = eye_dict['roi']
+                        (x,y,w,h) = eye_dict['face_loc']
+                        eyes = eye_dict['eyes']
+                        for (ex,ey,ew,eh) in eyes:
+                            cv2.rectangle(i,(ex+x,ey+y),(ex+ew+x,ey+eh+y),(0,255,0),2)
+
                 cv2.putText(i,str(distance),(0,25), font, 1, (0,0,255), 2, cv2.LINE_AA)
                 # i2 = cv2.resize(i, (0,0), fx=2.0, fy=2.0)
                 cv2.imshow('PiDuino video stream',i)
@@ -93,8 +117,11 @@ def feedbackthread(s, run_event):
 def facedetectthread(run_event):
     global i
     global faces
-    frontFaceCascade = cv2.CascadeClassifier('haarcascades/haarcascade_frontalface_default.xml')
-    sideFaceCascade = cv2.CascadeClassifier('haarcascades/haarcascade_frontalcatface_extended.xml')
+    # global eyes
+    global eye_list
+    frontFaceCascade = cv2.CascadeClassifier('/home/nibo/Builds/opencv/data/haarcascades/haarcascade_frontalface_default.xml')
+    sideFaceCascade = cv2.CascadeClassifier('/home/nibo/Builds/opencv/data/haarcascades/haarcascade_frontalcatface_extended.xml')
+    eyeCascade = cv2.CascadeClassifier('/home/nibo/Builds/opencv/data/haarcascades/haarcascade_eye.xml')
     pixelDistanceSquared = 400
     time.sleep(5)
     while run_event.is_set():
@@ -104,9 +131,22 @@ def facedetectthread(run_event):
                 gray,
                 scaleFactor=1.1,
                 minNeighbors=5,
-                minSize=(30, 30),
-                flags = cv2.cv.CV_HAAR_SCALE_IMAGE
+                # minSize=(30, 30),
+                # flags = cv2.CASCADE_SCALE_IMAGE
             )
+            # eyes = ()
+            eye_list = []
+            for (x,y,w,h) in faces:
+                # cv2.rectangle(img,(x,y),(x+w,y+h),(255,0,0),2)
+                roi_gray = gray[y:y+h, x:x+w]
+                # face_patches.append(i[y:y+h, x:x+w])
+                eyes = eyeCascade.detectMultiScale(roi_gray)
+                if len(eyes) > 0:
+                    eye_dict = {'roi': i[y:y+h, x:x+w], 'face_loc': (x,y,w,h), 'eyes': eyes}
+                    eye_list.append(eye_dict)
+                # for (ex,ey,ew,eh) in eyes:
+                #     cv2.rectangle(roi_color,(ex,ey),(ex+ew,ey+eh),(0,255,0),2)
+            # print(type(faces))
 
             #  some tryout stuff to see if i could improve face detection by
             # using multiple detectors. currently still too buggy.
