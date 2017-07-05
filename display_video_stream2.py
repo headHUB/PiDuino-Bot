@@ -45,12 +45,12 @@ def videothread(stream, bytes, run_event):
             if a!=-1 and b!=-1:
                 jpg = bytes[a:b+2]
                 bytes = bytes[b+2:]
-                i = cv2.imdecode(np.fromstring(jpg, dtype=np.uint8),cv2.CV_LOAD_IMAGE_COLOR)
+                i = cv2.imdecode(np.fromstring(jpg, dtype=np.uint8),cv2.IMREAD_COLOR)
                 font = cv2.FONT_HERSHEY_SIMPLEX
 
                 for (x, y, w, h) in faces:
                     cv2.rectangle(i, (x, y), (x+w, y+h), (0, 255, 0), 2)
-                cv2.putText(i,str(distance),(0,25), font, 1, (0,0,255), 2, cv2.CV_AA)
+                cv2.putText(i,str(distance),(0,25), font, 1, (0,0,255), 2, cv2.LINE_AA)
                 # i2 = cv2.resize(i, (0,0), fx=2.0, fy=2.0)
                 cv2.imshow('PiDuino video stream',i)
                 # cv2.waitKey(0)
